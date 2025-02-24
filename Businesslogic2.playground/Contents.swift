@@ -18,7 +18,7 @@ class MicroWaveOvenLogic {
     // 動作確認用(実行時に各パラメータに直接書き込みせずに、一旦設定値受け渡し用の変数、メソッドを使う)
     var inputPowerButton: Bool = false // 電源ボタン
     var inputStartButton: Bool = false // スタートボタン
-    var inputDooOpen: Bool = false // ドア開閉
+    var inputDoorOpen: Bool = false // ドア開閉
     var inputPower1500: Bool = false // レンジ出力
     var inputTimerLevel: Int = 0 // タイマー設定
     
@@ -50,6 +50,13 @@ class MicroWaveOvenLogic {
             offPower() // 電源オンの場合は、電源オフメソッドを呼び出す
         }
     }
+    // 出力変更ボタン
+    func tapPowerSelectButton() {
+        if !isPower1500 {
+            isPower1500 = true
+            print("　　⚡️1500Wに変更しました")
+        }
+    }
     // レンジタイマー設定
     func setOven() {
         switch setTimerLevel {
@@ -64,13 +71,13 @@ class MicroWaveOvenLogic {
         default:
             buzzer()
         }
-        print("🕰️タイマー設定：\(settingTime)秒")
+        print("　　🕰️タイマー設定：\(settingTime)秒")
     }
     // 電源オン
     func onPower() {
         isPowerOn = true
         if isPowerOn { // 状態確認してオン出力
-            print("💡レンジ電源オン")
+            print("　💡レンジ電源オン")
         }
         setOven() // タイマー設定メソッド呼び出し
     }
@@ -78,7 +85,7 @@ class MicroWaveOvenLogic {
     func offPower() {
         isPowerOn = false
         if !isPowerOn { // 状態確認してオフなら出力
-            print("💡レンジ電源オフ")
+            print("　💡レンジ電源オフ")
         }
     }
     // スタートボタン
@@ -87,41 +94,72 @@ class MicroWaveOvenLogic {
         isStartOven = isPowerOn && isStartButton && !isDoorOpen && settingTime > 0 // スタート条件：スタートボタン＆電源オン＆ドア閉扉＆タイマー時間設定あり(0より大きい)
         if isStartOven { // trueならレンジ始動メソッド呼び出し
             startOven()
+        } else if !isStartButton {
+            if !isDoorOpen {
+                print("⚠️スタートボタンが押されていません")
+            } else if isDoorOpen {
+                print("⚠️スタートボタンが押されていません")
+                print("⚠️ドアが開いています")
+            }
+        } else if isDoorOpen {
+            print("⚠️ドアが開いています")
+        } else if !isPowerOn {
+            print("⚠️電源が入っていません")
         }
     }
     // レンジ始動
     func startOven() {
         isEmission = true // レンジ動作状態をtrueに変更
+        if isPower1500 {
+            print("　　　⚡️電磁波発射[1500W]")
+        } else {
+            print("　　　⚡️電磁波発射[500W]")
+        }
         count()
-        print("⚡️電磁波発射")
     }
     // レンジ終了
     func endOven() {
         isEmission = false // レンジ動作状態をfalseに変更
-        print("⚡️電磁波停止")
+        print("　　　⚡️電磁波停止")
         buzzer() // ブザー鳴動メソッド呼び出し
+        offPower() // 電源オフメソッド呼び出し
     }
     // タイマーディスプレイ表示
     func remainingTimeDisplay() {
-        print("⏳:\(remainingTime)秒") // ディスプレイに残時間を表示
+        print("　　　　⏳:\(remainingTime)秒") // ディスプレイに残時間を表示
     }
     // ブザー鳴動
     func buzzer() {
-        print("🔔 ビープ音:鳴って→止まる")
+        print("　　🔔 ビープ音:鳴って→止まる")
     }
     // 動作確認用メソッド(操作設定をこのメソッドを通して書き込む)
-    func operationTest(inputPowerButton: Bool, inputStartButton: Bool, inputDooOpen: Bool, inputPower1500: Bool, inputTimeLevel: Int) {
-        isPowerOn = inputPowerButton
-        isPowerButton = inputPowerButton
+    func operationTest(inputPowerButton: Bool, inputStartButton: Bool, inputDoorOpen: Bool, inputPower1500: Bool, inputTimeLevel: Int) {
         isStartButton = inputStartButton
-        isDoorOpen = inputDooOpen
-        isPower1500 = inputPower1500
+        isDoorOpen = inputDoorOpen
         setTimerLevel = inputTimeLevel
-        tapPowerButton()
+        if inputPowerButton {
+            tapPowerButton()
+        } else {
+            print( "⚠️電源ボタンが押されていません")
+        }
+        if inputPower1500 {
+            tapPowerSelectButton()
+        }
         tapStartButton()
     }
 }
 
 let microWaveOvenLogic = MicroWaveOvenLogic()
-microWaveOvenLogic.operationTest(inputPowerButton: false, inputStartButton: true, inputDooOpen: false , inputPower1500: false, inputTimeLevel: 2)
+
+// 直接指定
+/*
+microWaveOvenLogic.setTimerLevel = 1
+microWaveOvenLogic.isStartButton = true
+microWaveOvenLogic.tapPowerButton()
+microWaveOvenLogic.tapStartButton()
+*/
+
+// 動作確認メソッド使用
+microWaveOvenLogic.operationTest(inputPowerButton: true, inputStartButton: true, inputDoorOpen: false, inputPower1500: true, inputTimeLevel: 1)
+
 
