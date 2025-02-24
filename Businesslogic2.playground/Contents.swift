@@ -7,7 +7,7 @@ class MicroWaveOvenLogic {
     var isEmission: Bool = false // レンジ動作状態
     var isPowerButton: Bool = false  // 電源ボタンTap状態
     var isStartButton: Bool = false  // StartボタンTap状態
-    var isDoorOpen: Bool = false   // ドア開閉状態
+    var isDoorOpen: Bool = false   // 扉開閉状態
     var isPower1500: Bool = false  // レンジ出力(1500W, 通常500W)
     // タイマー初期設定
     var setTimerLevel: Int = 0  // タイマー設定レベル
@@ -35,9 +35,12 @@ class MicroWaveOvenLogic {
     }
     // タイマー動作
     @objc func countDown() {
-        remainingTime -= 1  // 1秒毎カウントダウン
-        remainingTimeDisplay() // タイマーディスプレイ表示呼び出し
-        if endTime >= remainingTime {
+        doorMonitoring() // 扉開扉監視メソッド呼び出し
+        if !isDoorOpen { // 扉が開いていなければカウントダウンする
+            remainingTime -= 1  // 1秒毎カウントダウン
+            remainingTimeDisplay() // タイマーディスプレイ表示呼び出し
+        }
+        if endTime >= remainingTime { // タイマー残時間0になったらレンジ終了メソッド呼び出し
             endOven()
             timer?.invalidate() // タイマー停止
         }
@@ -132,6 +135,15 @@ class MicroWaveOvenLogic {
     func buzzer() {
         print("　　🔔 ビープ音:鳴って→止まる")
     }
+    // 扉開扉監視
+    func doorMonitoring() {
+        if isDoorOpen {
+            print("⚠️扉が開きました")
+            timer?.invalidate() // タイマー停止
+            endOven()
+        }
+    }
+    
     // 動作確認用メソッド(操作設定をこのメソッドを通して書き込む)
     func operationTest(inputPowerButton: Bool, inputStartButton: Bool, inputDoorOpen: Bool, inputPower1500: Bool, inputTimeLevel: Int) {
         isStartButton = inputStartButton
@@ -160,6 +172,6 @@ microWaveOvenLogic.tapStartButton()
 */
 
 // 動作確認メソッド使用
-microWaveOvenLogic.operationTest(inputPowerButton: true, inputStartButton: true, inputDoorOpen: false, inputPower1500: true, inputTimeLevel: 1)
+microWaveOvenLogic.operationTest(inputPowerButton: true, inputStartButton: false, inputDoorOpen: false, inputPower1500: false, inputTimeLevel: 2)
 
 
