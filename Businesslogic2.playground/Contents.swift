@@ -97,6 +97,7 @@ class MicroWaveOvenLogic {
         isStartOven = isPowerOn && isStartButton && !isDoorOpen && settingTime > 0 // スタート条件：スタートボタン＆電源オン＆ドア閉扉＆タイマー時間設定あり(0より大きい)
         if isStartOven { // trueならレンジ始動メソッド呼び出し
             startOven()
+        //レンジ始動しない場合のアラート表示
         } else if !isStartButton {
             if !isDoorOpen {
                 print("⚠️スタートボタンが押されていません")
@@ -157,7 +158,7 @@ class MicroWaveOvenLogic {
         if inputPower1500 {
             tapPowerSelectButton()
         }
-        tapStartButton()
+        tapStartButton() // 便宜的にfalseであろうとメソッド呼び出しはしている
     }
 }
 
@@ -172,6 +173,6 @@ microWaveOvenLogic.tapStartButton()
 */
 
 // 動作確認メソッド使用
-microWaveOvenLogic.operationTest(inputPowerButton: true, inputStartButton: false, inputDoorOpen: false, inputPower1500: false, inputTimeLevel: 2)
+microWaveOvenLogic.operationTest(inputPowerButton: true, inputStartButton: true, inputDoorOpen: false, inputPower1500: false, inputTimeLevel: 2)
 
 
